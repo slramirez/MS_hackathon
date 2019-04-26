@@ -1,0 +1,43 @@
+name: ai4good
+
+channels:
+  - defaults
+  - conda-forge
+  - plotly
+
+dependencies:
+  - python=3.6
+  - numpy
+  - scipy
+  - lxml
+  - pandas
+  - statsmodels
+  - xlrd
+  - scikit-learn
+  - xarray
+  - netcdf4
+  - geojson
+  - matplotlib
+  - seaborn
+  - plotly
+  - spyder
+  - jupyter
+  - beautifulsoup4
+  - ipywidgets
+  - ipyleaflet
+  - tqdm
+  - theano
+  - tensorflow
+  - keras
+  - selenium
+  - requests
+  - sqlite3
+  - pip
+
+  - pip:
+    - cufflinks
+    - gmplot
+    - dash
+    - dash_renderer
+    - dash_core_components
+    - dash_html_components
