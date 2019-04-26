@@ -2,3 +2,5 @@ pandas
 sqlite3
 matplotlib
 pickle
+requests
+selenium
