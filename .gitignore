@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 .DS_Store
 *.Rhistory
+interactive_map/MS_hackathon.db
+interactive_map/rsconnect
