@@ -1,8 +1,7 @@
 ## Hackathon with Insight Seattle 2019A in partnership with Microsoft AI for Good
 
 ### Team Members
-#### [Priscilla Addison](https://github.com/Peaddison), [Tyler Blair](https://github.com/tblair7), [Kyle Chezik](https://github.com/kchezik), [Colin Dietrich](https://github.com/crdietrich),
-[Stephanie Lee](https://github.com/stephanieylee), [Marie Salmi](https://github.com/salmim), [Gareth Walker](https://github.com/InternetGareth), [Hao Zheng](https://github.com/pkufelix)
+#### [Priscilla Addison](https://github.com/Peaddison), [Tyler Blair](https://github.com/tblair7), [Kyle Chezik](https://github.com/kchezik), [Colin Dietrich](https://github.com/crdietrich), [Stephanie Lee](https://github.com/stephanieylee), [Marie Salmi](https://github.com/salmim), [Gareth Walker](https://github.com/InternetGareth), [Hao Zheng](https://github.com/pkufelix)
 
 ### Data Descriptions  
 #### [GapMinder Data](https://www.gapminder.org/data/)
