@@ -12,6 +12,9 @@ library(DBI)
 library(dbplyr)
 library(RSQLite)
 
+# For local use.
+#setwd("~/Google Drive/Insight/Challenges/MS_hackathon/interactive_map")
+
 # Connect to Hack DB.
 con = dbConnect(SQLite(), dbname = "./MS_hackathon.db")
 
@@ -62,34 +65,32 @@ buttons = list("Population","Birth Rate",
 
 ui = fluidPage(
   theme = shinytheme("flatly"),
-  fluidRow(tags$h1("Hackathon for Social Good Map"), align = "center"),
+  fluidRow(tags$h1("Hackathon for Social Good: Insight Seattle 19A"), align = "center"),
   sidebarPanel(
-    selectInput("year","", seq(range(df$date)[1], range(df$date)[2])),
-    radioButtons("sel", "", buttons), width = 3
-               ),
-  mainPanel(leafletOutput("map"),
-            helpText("This map shows the GapMinder data standardized bewteen 0-1 in each year from 1980 to 2017."))
-  
-  # Year Selector
- # fluidRow(tags$h1("Hackathon for Social Good Map"), align = "center"),
- # fluidRow(selectInput("year","", seq(range(df$date)[1], range(df$date)[2]))),
- # fluidRow(
- #   column(2,radioButtons("sel", "", buttons)),
- #   column(9, leafletOutput("map")),
- #   column(1)
- #   )
+    checkboxGroupInput(inputId = "clusters", label = "Rights Violation Clusters",
+                       choices = list(1,2,3,4,5,6,7), inline = T),
+    selectInput("year","Year", seq(range(df$date)[1], range(df$date)[2])),
+    
+    radioButtons("sel", "GapMinder Data", buttons), width = 3),
+
+  mainPanel(tags$h4("Country GapMinder Data Filtered by Human Rights Clusters"),
+            leafletOutput("map"),
+            helpText("This map shows the GapMinder data standardized bewteen 0-1 in each year from 1980 to 2017 for countries with data. Years and locations without data are black and not included in the relative scaling."),
+            fluidRow(tags$h4("Human Rights Cluster Analysis"),
+                     tags$p("Gaussian Mixture Model Clustering of countries in 2011 by CIRI scores across 14 human rights violations. The further out toward scores of the 3 indicate a better record on a given human rights issue.")),
+            imageOutput("clust_img"))
 )
 
 server = function(input, output){
-  # Map
+  # Create Map
   output$map = renderLeaflet({
     
-    # Subset
+    # Subset Gapminder Data
     sub_df = df[df$date==input$year,]
     world@data = left_join(w_df, sub_df)
     
     # Organize data. Compress between 0-1 and log transform as needed.
-    world@data$population = compress(world@data$population,lg=T, na.rm = T)
+    world@data$population = compress(world@data$population, lg=T, na.rm = T)
     world@data$annual_birth_rate_per_1000 = compress(world@data$annual_birth_rate_per_1000,lg=F, na.rm = T)
     world@data$life_exp_years = compress(world@data$life_exp_years,lg=F, na.rm = T)
     world@data$life_exp_years_f = compress(world@data$life_exp_years_f,lg=F, na.rm = T)
@@ -109,7 +110,7 @@ server = function(input, output){
     world@data$democracy_score = compress(world@data$democracy_score,F,na.rm=T)
     world@data$murder_per_1000 = compress(world@data$murder_per_1000,T,na.rm=T)
     
-    # Switch board
+    # Switch board (selector is linked to column in subset data)
     DataType <- function(x) {
       switch(x,
              "Population" = world@data$population,
@@ -133,13 +134,19 @@ server = function(input, output){
              "Murder Rate" = world@data$murder_per_1000
       )}
     
+    if(input$sel=="Population"){
+      myPal = colorBin(palette = "YlOrBr", domain = c(0,1), na.color = "#282F44",
+                       bins = c(0,.4,.6,.8,.9,1), alpha = 0.9)(DataType(input$sel))
+    }
+    else{
+      myPal = colorNumeric(palette = "YlOrBr", domain = c(0,1),
+                           na.color = "#282F44", alpha = 0.9)(DataType(input$sel))
+    }
     # Map
     leaflet(world) %>% addTiles()  %>% 
       setView(lat=10, lng=0 , zoom=2) %>%
       addPolygons(
-        fillColor = ~colorNumeric(palette = "YlOrBr",
-                                  domain = c(0,1),
-                                  na.color = "transparent")(DataType(input$sel)),
+        fillColor = ~myPal,
         fillOpacity = 0.9, stroke=T,
         color="white", weight=0.3, dashArray = "",
         highlight = highlightOptions(
@@ -151,11 +158,18 @@ server = function(input, output){
                                     textsize = "13px", direction = "auto")
       ) %>%
     addLegend(
-      pal=colorNumeric(palette="YlOrBr", domain=c(0,1), na.color="transparent"),
+      pal=colorNumeric(palette="YlOrBr", domain=c(0,1), na.color="transparent", reverse = T),
       values=~DataType(input$sel),  opacity=0.9,
-      title = "", position = "bottomleft")
+      title = "", position = "bottomleft", 
+      labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
   })
+  output$clust_img = renderImage({
+      return(list(
+        src = "./Cluster_Image.png",
+        contentType = "image/png",
+        alt = "Analysis Clusters 2011",
+        width = "80%"))
+  }, deleteFile = F)
 }
 
 shinyApp(ui = ui, server = server)
-
