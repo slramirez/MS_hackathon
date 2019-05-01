@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 .DS_Store
 *.Rhistory
+.idea/*
 interactive_map/MS_hackathon.db
 interactive_map/rsconnect
 data/Custom_State_Dep_Reports/All_report_1999_2009.csv
