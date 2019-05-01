@@ -41,6 +41,7 @@ Comoros,174
 "Congo, Rep.",178
 Costa Rica,188
 Cote d'Ivoire,384
+Cote D'Ivoire,384
 Croatia,191
 Cuba,192
 Cyprus,196
@@ -90,7 +91,8 @@ Kenya,404
 Kiribati,296
 Kuwait,414
 Kyrgyz Republic,417
-Lao,418
+Kyrgyzstan,417
+Laos,418
 Latvia,428
 Lebanon,422
 Lesotho,426
@@ -100,6 +102,7 @@ Liechtenstein,438
 Lithuania,440
 Luxembourg,442
 "Macedonia, FYR",807
+Macedonia,807
 Madagascar,450
 Malawi,454
 Malaysia,458
@@ -111,6 +114,7 @@ Mauritania,478
 Mauritius,480
 Mexico,484
 "Micronesia, Fed. Sts.",583
+Micronesia,583
 Moldova,498
 Monaco,492
 Mongolia,496
@@ -153,6 +157,7 @@ Seychelles,690
 Sierra Leone,694
 Singapore,702
 Slovak Republic,703
+Slovakia,703
 Slovenia,705
 Solomon Islands,90
 Somalia,706
@@ -174,6 +179,7 @@ Tajikistan,762
 Tanzania,834
 Thailand,764
 Timor-Leste,626
+East Timor,626
 Togo,768
 Tonga,776
 Trinidad and Tobago,780
@@ -194,3 +200,10 @@ Vietnam,704
 Yemen,887
 Zambia,894
 Zimbabwe,716
+Kosovo,9000
+Western Sahara,9000
+Yugoslavia,9000
+Taiwan,9000
+Macau,9000
+Hong Kong,9000
+Cabo Verde,9000
