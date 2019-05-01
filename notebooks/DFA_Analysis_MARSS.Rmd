@@ -1,0 +1,30 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+# Load in libraries for data cleaning.
+library(tidyverse)
+library(naniar)
+library(ggplot2)
+
+# Read in CIRI data and select columns of interest.
+ciri = read_csv("../data/CIRI_Data_1981_2011.csv")
+names(ciri) = tolower(names(ciri))
+ciri = select(ciri,ctry,year,disap,kill,tort,polpris,assn,formov,
+              dommov,speech,elecsd,new_relfre,worker,wecon,wopol,injud) 
+# Replace -66, -999 and -77 with NA.
+ciri = replace_with_na_all(ciri, condition = ~.x<0)
+ciri
+```
+
+```{r}
+ggplot(ciri %>% filter(ctry == "Afghanistan"), aes(year, disap)) + geom_point()
+```
+
+```{r}
+
+```

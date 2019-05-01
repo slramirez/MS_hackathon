@@ -1,78 +1,175 @@
-# Load packages
+# Data Manipulation
+library(tidyverse)
+# Spatial
 library(rgdal)
 library(sp)
+# Interactive Plots
 library(leaflet)
 library(shinythemes)
 library(shiny)
+# Database
+library(DBI)
+library(dbplyr)
+library(RSQLite)
 
-# Set working directory
-setwd("~/Google Drive/Insight/Challenges/MS_hackathon/interactive_map")
+# For local use.
+#setwd("~/Google Drive/Insight/Challenges/MS_hackathon/interactive_map")
 
-# Read in the country file.
-world_spdf=readOGR(dsn=getwd(), layer="TM_WORLD_BORDERS_SIMPL-0.3")
-names(world_spdf) = tolower(names(world_spdf))
+# Connect to Hack DB.
+con = dbConnect(SQLite(), dbname = "./MS_hackathon.db")
 
-# Modify data
-world_spdf@data$pop2005[world_spdf@data$pop2005 == 0] = NA
-world_spdf@data$pop2005 = as.numeric(as.character(world_spdf@data$pop2005)) / 1000000 %>% round(2)
+# Query
+query = dbSendQuery(con, "SELECT * FROM GapMinderData")
+# Fetch query
+df = dbFetch(query, n = -1)
+# Clear query
+dbClearResult(query)
 
-# Prepare the text for the tooltip:
-mytext=paste("Country: ", world_spdf@data$name,"<br/>", "Area: ", world_spdf@data$area, "<br/>", "Population: ", round(world_spdf@data$pop2005, 2), sep="") %>%
-  lapply(htmltools::HTML)
+# Read in the country shape file.
+world=readOGR(dsn= "./ne_50m_admin_0_countries/", layer="ne_50m_admin_0_countries", stringsAsFactors = F)
+world@data = world@data %>% select(FORMAL_EN,UN_A3) # Select formal country name and UN code.
+names(world@data) = c('name', 'unctry') # Rename column names
+world@data$unctry=as.numeric(world@data$unctry)
+world@data$unctry[world@data$unctry==-99] = NA # Convert -99 to NA.
+w_df = world@data
 
-DataType <- function(x) {
-  switch(x,
-         "Population" = world_spdf@data$pop2005,
-         "Area" = world_spdf@data$area,
-         "Region" = world_spdf@data$region,
-         "Sub-Region" = world_spdf@data$subregion
-  )}
+# Range between 0-1.
+compress = function(x, lg = F, ...){
+  if(lg){
+    x = log(x)
+    zero_one = (x - min(x, ...)) / (max(x, ...) - min(x, ...))
+  } 
+  else zero_one = (x - min(x, ...)) / (max(x, ...) - min(x, ...))
+  return(zero_one)
+}
+
+# Button titles
+buttons = list("Population","Birth Rate",
+               "Life Expectancy", 
+               "Life Expectancy (F)", 
+               "Life Expectancy (M)",
+               "Child Morality", "GDP",
+               "Inflation",
+               "Employment",
+               "Inequality",
+               "Aid Received",
+               "Literacy",
+               "Literacy (F)",
+               "Literacy (M)",
+               "Journalists Killed",
+               "Cell Phone Density",
+               "Corruption",
+               "Democracy",
+               "Murder Rate")
 
 
 ui = fluidPage(
-  fluidRow(tags$h1("Hackathon for Social Good Map"), align = "center"),
-  fluidRow(
-    column(2,radioButtons("sel", "",
-                 list("Population","Area","Region","Sub-Region"))),
-    column(9, leafletOutput("map")),
-    column(1)
-  )
+  theme = shinytheme("flatly"),
+  fluidRow(tags$h1("Hackathon for Social Good: Insight Seattle 19A"), align = "center"),
+  sidebarPanel(
+    checkboxGroupInput(inputId = "clusters", label = "Rights Violation Clusters",
+                       choices = list(1,2,3,4,5,6,7), inline = T),
+    selectInput("year","Year", seq(range(df$date)[1], range(df$date)[2])),
+    
+    radioButtons("sel", "GapMinder Data", buttons), width = 3),
+
+  mainPanel(tags$h4("Country GapMinder Data Filtered by Human Rights Clusters"),
+            leafletOutput("map"),
+            helpText("This map shows the GapMinder data standardized bewteen 0-1 in each year from 1980 to 2017 for countries with data. Years and locations without data are black and not included in the relative scaling."),
+            fluidRow(tags$h4("Human Rights Cluster Analysis"),
+                     tags$p("Gaussian Mixture Model Clustering of countries in 2011 by CIRI scores across 14 human rights violations. The further out toward scores of the 3 indicate a better record on a given human rights issue.")),
+            imageOutput("clust_img"))
 )
 
-server = function(input, output) {
+server = function(input, output){
+  # Create Map
   output$map = renderLeaflet({
-    # Create a color palette for the map:
-    if(input$sel == "Population") {
-      mybins=c(0,10,20,50,100,500,Inf)
-      mypalette = colorBin(palette="YlOrBr", domain=DataType(input$sel),
-                           na.color="transparent", bins = mybins)
-    } else {
-      mypalette = colorNumeric("YlOrBr", DataType(input$sel))
-    }
-    hghlght = colorNumeric("Blues", DataType(input$sel))(DataType(input$sel))
     
+    # Subset Gapminder Data
+    sub_df = df[df$date==input$year,]
+    world@data = left_join(w_df, sub_df)
+    
+    # Organize data. Compress between 0-1 and log transform as needed.
+    world@data$population = compress(world@data$population, lg=T, na.rm = T)
+    world@data$annual_birth_rate_per_1000 = compress(world@data$annual_birth_rate_per_1000,lg=F, na.rm = T)
+    world@data$life_exp_years = compress(world@data$life_exp_years,lg=F, na.rm = T)
+    world@data$life_exp_years_f = compress(world@data$life_exp_years_f,lg=F, na.rm = T)
+    world@data$life_exp_years_m = compress(world@data$life_exp_years_m,lg=F, na.rm = T)
+    world@data$child_mortality = compress(world@data$child_mortality,lg=T, na.rm = T)
+    world@data$gdp_usd = compress(world@data$gdp_usd,lg=T, na.rm = T)
+    world@data$inflation_percent = compress(world@data$inflation_percent,lg=F, na.rm = T)
+    world@data$employment = world@data$employment/100
+    world@data$gini = compress(world@data$gini, F, na.rm = T)
+    world@data$aid_received_pp = compress(world@data$aid_received_pp,T,na.rm=T)
+    world@data$adult_lit_rate = compress(world@data$adult_lit_rate,F,na.rm=T)
+    world@data$adult_lit_rate_f = compress(world@data$adult_lit_rate_f,F,na.rm=T)
+    world@data$adult_lit_rate_m = compress(world@data$adult_lit_rate_m,F,na.rm=T)
+    world@data$journalists_killed = compress(world@data$journalists_killed,F,na.rm=T)
+    world@data$cell_phone_per_100 = compress(world@data$cell_phone_per_100,F,na.rm=T)
+    world@data$corruption_index = compress(world@data$corruption_index,F,na.rm=T)
+    world@data$democracy_score = compress(world@data$democracy_score,F,na.rm=T)
+    world@data$murder_per_1000 = compress(world@data$murder_per_1000,T,na.rm=T)
+    
+    # Switch board (selector is linked to column in subset data)
+    DataType <- function(x) {
+      switch(x,
+             "Population" = world@data$population,
+             "Birth Rate" = world@data$annual_birth_rate_per_1000,
+             "Life Expectancy" = world@data$life_exp_years,
+             "Life Expectancy (F)" = world@data$life_exp_years_f,
+             "Life Expectancy (M)" = world@data$life_exp_years_m,
+             "Child Morality" = world@data$child_mortality,
+             "GDP" = world@data$gdp_usd,
+             "Inflation" = world@data$inflation_percent,
+             "Employment" = world@data$employment,
+             "Inequality" = world@data$gini,
+             "Aid Received" = world@data$aid_received_pp,
+             "Literacy" = world@data$adult_lit_rate,
+             "Literacy (F)" = world@data$adult_lit_rate_f,
+             "Literacy (M)" = world@data$adult_lit_rate_m,
+             "Journalists Killed" = world@data$journalists_killed,
+             "Cell Phone Density" = world@data$cell_phone_per_100,
+             "Corruption" = world@data$corruption_index,
+             "Democracy" = world@data$democracy_score,
+             "Murder Rate" = world@data$murder_per_1000
+      )}
+    
+    if(input$sel=="Population"){
+      myPal = colorBin(palette = "YlOrBr", domain = c(0,1), na.color = "#282F44",
+                       bins = c(0,.4,.6,.8,.9,1), alpha = 0.9)(DataType(input$sel))
+    }
+    else{
+      myPal = colorNumeric(palette = "YlOrBr", domain = c(0,1),
+                           na.color = "#282F44", alpha = 0.9)(DataType(input$sel))
+    }
     # Map
-    leaflet(world_spdf) %>% 
-      addTiles()  %>% 
+    leaflet(world) %>% addTiles()  %>% 
       setView(lat=10, lng=0 , zoom=2) %>%
       addPolygons(
-        fillColor = ~mypalette(DataType(input$sel)),
+        fillColor = ~myPal,
         fillOpacity = 0.9, stroke=T,
         color="white", weight=0.3, dashArray = "",
         highlight = highlightOptions(
-          weight = 5, color = hghlght,
+          weight = 5, color = ~colorNumeric("Blues", c(0,1))(DataType(input$sel)),
           dashArray = "", fillOpacity = 0.1, bringToFront = TRUE
         ),
-        label = mytext,
-        labelOptions = labelOptions(
-          style = list("font-weight" = "normal", padding = "3px 8px"),
-          textsize = "13px", direction = "auto")
-      ) %>% 
-      addLegend(
-        pal=mypalette,  values=DataType(input$sel),  opacity=0.9, 
-        title = "", position = "bottomleft"
-      )
+        label = paste("Country: ", world@data$name,"<br/>", sep="") %>% lapply(htmltools::HTML),
+        labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"),
+                                    textsize = "13px", direction = "auto")
+      ) %>%
+    addLegend(
+      pal=colorNumeric(palette="YlOrBr", domain=c(0,1), na.color="transparent", reverse = T),
+      values=~DataType(input$sel),  opacity=0.9,
+      title = "", position = "bottomleft", 
+      labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
   })
+  output$clust_img = renderImage({
+      return(list(
+        src = "./Cluster_Image.png",
+        contentType = "image/png",
+        alt = "Analysis Clusters 2011",
+        width = "80%"))
+  }, deleteFile = F)
 }
 
 shinyApp(ui = ui, server = server)
