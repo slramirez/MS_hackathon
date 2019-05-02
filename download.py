@@ -7,7 +7,7 @@ import zipfile
 
 import config
 
-def download_data(d_url, d_directory, verbose=False):
+def download_data(d_url, d_directory, d_file=None, verbose=False):
     """Download data to local directory
 
     Parameters
@@ -17,9 +17,10 @@ def download_data(d_url, d_directory, verbose=False):
     """
     if verbose:
             print('Downloading data from %s...' % d_url)
-    d_file = d_url.split("/")[-1]
-    if "?" in d_file:
-        d_file = d_file.split("?")[0]
+    if d_file is None:
+        d_file = d_url.split("/")[-1]
+        if "?" in d_file:
+            d_file = d_file.split("?")[0]
     d_file_target = os.path.normpath(d_directory + os.path.sep + d_file)
     if not os.path.exists(d_file_target):
         res = requests.get(d_url)
@@ -74,8 +75,11 @@ def download_extract(d_url, d_directory, verbose=False):
 def required_data():
     """Download required data for project"""
 
-    download_data(config.v_dem_data, config.default_target)
+    # V-dem was not used
+    #download_data(config.v_dem_data, config.data_directory)
 
+    download_data(config.ciri_data, config.data_directory,
+                  d_file='CIRI_Data_1981_2011.csv')
     print('All downloads complete.')
 
 if __name__ == "__main__":
