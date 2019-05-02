@@ -45,6 +45,10 @@
 Header row is:
 CTRY,YEAR,CIRI,COW,POLITY,UNCTRY,UNREG,UNSUBREG,PHYSINT,DISAP,KILL,POLPRIS,TORT,OLD_EMPINX,NEW_EMPINX,ASSN,FORMOV,DOMMOV,OLD_MOVE,SPEECH,ELECSD,OLD_RELFRE,NEW_RELFRE,WORKER,WECON,WOPOL,WOSOC,INJUD
 
+##### Variable Definitions  
+See [CIRI_data_description.md](CIRI_data_description.md)
+
+
 #### [Varieties of Democracy](https://www.v-dem.net/en/)
 Varieties of Democracy (V-Dem) distinguishes between five high-level principles of democracy: electoral, liberal, participatory, deliberative, and egalitarian, and collects data to measure these principles.  Columns are defined in a separate publication:  
 https://www.v-dem.net/en/reference/version-9-apr-2019/  

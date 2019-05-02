@@ -10,7 +10,6 @@
 8,Chad,Chad
 9,Comoros,Comoros
 10,Cote D'Ivoire,Cote D'Ivoire
-11,Democratic Republic Of The Congo,Congo
 12,Djibouti,Djibouti
 13,Equatorial Guinea,Equatorial Guinea
 14,Eritrea,Eritrea
@@ -31,7 +30,6 @@
 29,Namibia,Namibia
 30,Niger,Niger
 31,Nigeria,Nigeria
-32,Republic of Congo,Congo
 33,Rwanda,Rwanda
 34,Sao Tome and Principe,Sao Tome and Principe
 35,Senegal,Senegal
@@ -41,6 +39,7 @@
 39,South Africa,South Africa
 40,Sudan,Sudan
 41,Swaziland,Swaziland
+41,Eswatini,Swaziland
 42,Tanzania,Tanzania
 43,The Gambia,Gambia
 44,Togo,Togo
@@ -73,7 +72,9 @@
 71,Singapore,Singapore
 72,Slovenia,Slovenia
 73,Solomon Islands,Solomon Islands
-74,Somoa,Somoa
+74,Somoa,Samoa
+74,Samoa,Samoa
+74,Western Samoa,Samoa
 75,Taiwan,Taiwan
 76,Thailand,Thailand
 77,Tonga,Tonga
@@ -110,6 +111,7 @@
 108,Lithuania,Lithuania
 109,Luxembourg,Luxembourg
 110,"Macedonia, The Former Yugoslav Republic of",Macedonia
+110,North Macedonia,Macedonia
 111,Malta,Malta
 112,Moldova,Moldova
 113,Monaco,Monaco
@@ -192,9 +194,15 @@
 191,Nepal,Nepal
 192,Pakistan,Pakistan
 193,Sri Lanka,Sri Lanka
-194,"Congo, Democratic Republic of the",Congo
-195,"Congo, Republic of the",Congo
+194,"Congo, Democratic Republic of the","Congo, Dem. Rep."
+215,"Congo, Dem Republic of","Congo, Dem. Rep."
+11,Democratic Republic Of The Congo,"Congo, Dem. Rep."
+195,"Congo, Republic of the","Congo, Rep."
+252,"Congo, Republic of","Congo, Rep."
+32,Republic of Congo,"Congo, Rep."
+255,Gambia,Gambia
 196,"Gambia, The",Gambia
+196,The Gambia,Gambia
 197,Mauritius,Mauritius
 198,South Africa ,South Africa
 199,China (Taiwan only),China
@@ -213,7 +221,6 @@
 212,St. Vincent and the Grenadines,St. Vincent and the Grenadines
 213,Israel and the occupied territories,Israel
 214,United Arab Emirates ,United Arab Emirates
-215,"Congo, Republic of",Congo
 216,Cote d'Ivoire,Cote d'Ivoire
 217,China (Includes Hong Kong and Macau),China
 218,"Micronesia, Federated States of",Micronesia
@@ -239,7 +246,23 @@
 239,Iran*,Iran
 240,Brunei Darussalam,Brunei
 241,Timor-Leste,Timor-Leste
+241,East Timor,Timor-Leste
 242,Kosovo,Kosovo
 243,Netherlands,Netherlands
 244,Serbia,Serbia
 245,Slovakia,Slovakia
+246,Kosovo,Kosovo
+247,Macedonia,Macedonia
+248,"Macedonia, FYR",Macedonia
+249,Western Sahara,Morocco
+250,"Micronesia, Federated States of",Micronesia
+251,Micronesia,Micronesia
+252,Kyrgyzstan,Kyrgyzstan
+253,Kyrgyz Republic,Kyrgyz Republic
+254,Samoa,Samoa
+255,Somoa,Samoa
+256,"Israel, Golan Heights, West Bank, and Gaza",Israel
+257,Israel and The Occupied Territories,Israel
+258,Suriname,Suriname
+259,South Sudan,South Sudan
+260,Cabo Verde,Cabo Verde
