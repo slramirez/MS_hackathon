@@ -180,10 +180,6 @@ def state_dept_dl_to_csv(years=config.state_dept_years, verbose=False):
     _df.to_csv(config.state_dept_data)
 
 
-def ciri_dl(verbose=False):
-
-
-
 if __name__ == "__main__":
 
     if not os.path.isfile(config.state_dept_data):

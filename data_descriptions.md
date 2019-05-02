@@ -1,6 +1,37 @@
 # Data Descriptions
 Descriptions for data using in project  
 
+### Data Pipeline  
+
+##### STEP 1:  
+CIRI data 1981-2011 = downloaded as is
+CIRI data 1981-2018 = downloaded as is
+
+All_report_1999_2009 = custom scrape of all state department text data, done with Python scraper  
+
+/data/state_dept_country_names.csv  = downloaded and augmented
+From:::
+
+/data/GapminderRaw/UNCTRY_CODES_GapminderNames.csv   downloaded and augmentd manually  
+From:::
+
+##### STEP 2:  
+Combine all in STEP 1
+
+Use:  Merge CIRI with State Dep Notebook  
+Output: CIRI_Text_1999_2009.csv  
+
+##### STEP 3:  
+SVM predict CIRI scores  
+
+Use:  POS approach, section 4.3 +
+Import:  CIRI_Text_1999_2009.csv  
+
+Defined pipeline in 4.0,
+SGD SVM in 4.3
+
+
+
 ## In Source /data Folder  
 ----
 ### CIRI_Data_1981_2011.csv  
@@ -152,7 +183,8 @@ For a full discussion of the POLITY indicators of special circumstance see Marsh
 Reference: Marshall, Monty G. and Keith Jaggers. 2003. Polity IV Project: Political Regime Characteristics and Transitions, 1800-2002.
 
 
-
+## CIRI Data 2016
+https://docs.google.com/document/d/1ZxuitRNKpTcEpwi_1p8u0IRnib7ggtKF9TQcf_jbmo0/edit#
 
 GapminderData.csv
 Source:  

@@ -71,6 +71,46 @@ def download_extract(d_url, d_directory, verbose=False):
                                              data_file)
     extract_files(data_file_target, d_directory, verbose)
 
+def download_file_from_google_drive(id, destination):
+    """Download a file from Google Drive
+    Happily copied from:  
+    https://stackoverflow.com/questions/38511444/python-download-files-from-google-drive-using-url
+    """
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+
+    save_response_content(response, destination)
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
+
+#def ciri_2011_2018(d_directory):
+#    file_id = ""
+#    download_file_from_google_drive(file_id, d_directory)
+#    [click here](https: // drive.google.com / file / d / 1
+#    q0imjixfsqDyGLCBzVWvJBzOuy4onkyb / view?usp = sharing)
+
 
 def required_data():
     """Download required data for project"""
@@ -78,8 +118,15 @@ def required_data():
     # V-dem was not used
     #download_data(config.v_dem_data, config.data_directory)
 
-    download_data(config.ciri_data, config.data_directory,
-                  d_file='CIRI_Data_1981_2011.csv')
+    #download_data(config.ciri_data, config.data_directory,
+    #              d_file='CIRI_Data_1981_2011.csv')
+
+    #ciri_2011_2018_share_link =
+    # https://drive.google.com/file/d/1q0imjixfsqDyGLCBzVWvJBzOuy4onkyb/view?usp=sharing
+    ciri_2011_2018_file_id = "1q0imjixfsqDyGLCBzVWvJBzOuy4onkyb"
+    download_file_from_google_drive(ciri_2011_2018_file_id,
+        config.data_directory + "ci_rights_data_project_dataset.xlsx")
+
     print('All downloads complete.')
 
 if __name__ == "__main__":
