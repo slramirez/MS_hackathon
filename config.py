@@ -2,17 +2,21 @@
 
 
 import os
+current_directory = os.path.dirname(os.path.realpath(__file__))
 
-
-data_directory = os.path.normpath("data") + os.path.sep
+data_directory = current_directory + os.path.sep + os.path.normpath("data") + os.path.sep
 
 # US State Department Human Rights Data
-state_dept_years = list(range(1999,2019))
+state_dept_years = list(range(1999, 2019))
 state_dept_data = data_directory + "us_state_dept_hr_reports.csv"
 
 # CIRI Human Rights Data Project
-ciri_data = "https://drive.google.com/uc?export=download&id=0BxDpF6GQ-6fbbEdZYmRXekhGMFE"
+ciri_url = "https://www.dropbox.com/s/7tmbttddeiaap94/CIRI%20Data%201981_2011%202014.04.14.csv?dl=1"
+ciri_data = "CIRI Data 1981_2011 2014.04.14.csv"
 
+# CIRIGHTS Data Project
+cirights_url = "https://www.dropbox.com/s/x2sct3bsy63zb31/ci_rights_data_project_dataset.csv?dl=1"
+cirights_data = "ci_rights_data_project_dataset.csv"
 
 # Variables of Democracy
 v_dem_data = "https://www.dropbox.com/s/ixqjxqva959ulro/v_dem_data.zip?dl=1"
