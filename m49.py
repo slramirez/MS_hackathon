@@ -7,6 +7,8 @@ https://unstats.un.org/unsd/methodology/m49/
 
 import pandas as pd
 
+import config
+
 
 class M49:
     def __init__(self, code_file):
@@ -71,3 +73,31 @@ class M49:
             return self.df.loc[self.df['M49 code'] == int(m49_code), 'Country or Area'].values[0]
         except IndexError:
             print(m49_code)
+
+
+class UN:
+    def __init__(self):
+        self.gap_fp = config.gapminder_un_country_code_data
+        self.df_un = pd.read_csv(config.data_directory + self.gap_fp)
+        self.df_un.rename(columns={'CTRY': 'country',
+                                   'UNCTRY': 'code'}, inplace=True)
+        self.country_un_mapper = {k: v for k, v in zip(self.df_un.country,
+                                                       self.df_un.code)}
+        self.un_fp = config.un_country_code_data
+        self.df_state = pd.read_csv(config.data_directory + self.un_fp)
+
+        self.df_state = self.df_state[['country', 'simple']].copy()
+        self.df_state.reset_index(inplace=True, drop=True)
+        self.df_state.rename(columns={'country': 'country_full', 'simple': 'country'},
+                             inplace=True)
+
+        self.df_state['code_full'] = self.df_state.country_full.apply(self.apply_mapper)
+        self.df_state['code_short'] = self.df_state.country.apply(self.apply_mapper)
+        self.df_state['code'] = self.df_state[['code_full', 'code_short']].apply(max, axis=1)
+
+    def apply_mapper(self, country_name):
+        try:
+            return self.country_un_mapper[country_name]
+        except KeyError:
+            return -1
+

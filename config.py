@@ -20,3 +20,9 @@ cirights_data = "ci_rights_data_project_dataset.csv"
 
 # Variables of Democracy
 v_dem_data = "https://www.dropbox.com/s/ixqjxqva959ulro/v_dem_data.zip?dl=1"
+
+# Gapminder Data
+gapminder_un_country_code_data = "UNCTRY_CODES_GapMinderNames.csv"
+
+# UN Country Codes
+un_country_code_data = "state_dept_country_names.csv"
