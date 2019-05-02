@@ -8,7 +8,7 @@ data_directory = current_directory + os.path.sep + os.path.normpath("data") + os
 
 # US State Department Human Rights Data
 state_dept_years = list(range(1999, 2019))
-state_dept_data = data_directory + "us_state_dept_hr_reports.csv"
+state_dept_data = "us_state_dept_hr_reports.csv"
 
 # CIRI Human Rights Data Project
 ciri_url = "https://www.dropbox.com/s/7tmbttddeiaap94/CIRI%20Data%201981_2011%202014.04.14.csv?dl=1"

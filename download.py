@@ -109,7 +109,7 @@ def save_response_content(response, destination):
 
     with open(destination, "wb") as f:
         for chunk in response.iter_content(chunk_size):
-            if chunk: # filter out keep-alive new chunks
+            if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
 

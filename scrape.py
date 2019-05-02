@@ -15,6 +15,7 @@ section_names = ['Africa', 'East Asia and the Pacific',
                  'Europe and Eurasia', 'Near East and North Africa',
                  'South Asia', 'Western Hemisphere']
 
+
 def state_dept_indexes(year, verbose=False):
     """"Scrape section links from the US State Department yearly 
     Human Rights Reports
@@ -39,7 +40,7 @@ def state_dept_indexes(year, verbose=False):
 
     r = requests.get(url)
     text = r.text
-    soup = BeautifulSoup(text, "html5lib")
+    soup = BeautifulSoup(text, 'html.parser')
 
     section_links = []
     ignore_sections = ['Appendices', 'Appendixes', 'Front',
@@ -68,8 +69,8 @@ def state_dept_indexes(year, verbose=False):
 
 
 def state_dept_sections(year, section_url,
-                    base_url='https://www.state.gov', verbose=False,
-                    delay=0.1):
+                        base_url='https://www.state.gov', verbose=False,
+                        delay=0.1):
     """"Scrape report links from the US State Department yearly 
     Human Rights Reports.  
     
@@ -81,6 +82,7 @@ def state_dept_sections(year, section_url,
     year : int, year to scrape section links for
     section_url : str, url of link to report section containing report
     base_url : str, base url of site, defaults to 'https://www.state.gov'
+    delay : float, seconds to wait between scraping pages
     verbose : bool, print debug statements
     
     Returns
@@ -97,7 +99,7 @@ def state_dept_sections(year, section_url,
     time.sleep(delay)
     r = requests.get(section_url)
     text = r.text
-    soup = BeautifulSoup(text, "html5lib")
+    soup = BeautifulSoup(text, 'html.parser')
 
     country_links = []
 
@@ -130,7 +132,7 @@ def state_dept_country(url):
 
     r = requests.get(url)
     data = r.text
-    soup = BeautifulSoup(data, "html5lib")
+    soup = BeautifulSoup(data, 'html.parser')
     return soup.find("div", {"id": "centerblock"}).text
 
 
@@ -142,12 +144,16 @@ def state_dept_dl(years=config.state_dept_years, verbose=False):
 
     Parameters
     ----------
-    url : str, url of link to report section containing report text
+    years : list of int, years to download reports for
     verbose : bool, print debug statements
     
     Returns
     -------
-    str, text of report
+    pandas DataFrame, with columns:
+        year: int, year of report
+        country : str, country name
+        url : str, url of data downloaded
+        text : str, text of report for year and country
     """
 
     all_links = []
@@ -162,6 +168,7 @@ def state_dept_dl(years=config.state_dept_years, verbose=False):
 
     df = pd.DataFrame(all_links, columns=['year', 'country', 'url'])
     df['text'] = df.url.apply(state_dept_country)
+    return df
 
 
 def state_dept_dl_to_csv(years=config.state_dept_years, verbose=False):
@@ -172,15 +179,17 @@ def state_dept_dl_to_csv(years=config.state_dept_years, verbose=False):
 
     Parameters
     ----------
-    year : int, year to scrape section links for
+    years : list of int, years to download reports for
     verbose : bool, print debug statements
     """
 
     _df = state_dept_dl(years=years, verbose=verbose)
-    _df.to_csv(config.state_dept_data)
+    _df.to_csv(config.data_directory + config.state_dept_data)
+    if verbose:
+        print("Done scraping State Department Data.")
 
 
 if __name__ == "__main__":
 
     if not os.path.isfile(config.state_dept_data):
-        state_dept_dl_to_csv()
+        state_dept_dl_to_csv(verbose=True)
