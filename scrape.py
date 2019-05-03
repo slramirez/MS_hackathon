@@ -189,6 +189,25 @@ def state_dept_dl_to_csv(years=config.state_dept_years, verbose=False):
         print("Done scraping State Department Data.")
 
 
+def gdelt_page(url):
+    """"Scrape news report text from a listing on the GDELT database
+
+    https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/
+
+    Parameters
+    ----------
+    url : str, url of link to report section containing report text
+
+    Returns
+    -------
+    str, text of report
+    """
+
+    r = requests.get(url)
+    data = r.text
+    soup = BeautifulSoup(data, 'html.parser')
+    return soup.find("div", {"id": "centerblock"}).text
+
 if __name__ == "__main__":
 
     if not os.path.isfile(config.state_dept_data):

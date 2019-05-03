@@ -32,6 +32,7 @@ dependencies:
   - selenium
   - requests
   - sqlite
+  - spacy
   - pip
 
   - pip:
