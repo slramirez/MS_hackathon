@@ -10,3 +10,5 @@ data/Custom_State_Dep_Reports/All_report_1999_2009.csv
 data/Custom_State_Dep_Reports/CIRI_Text_1999_2009.csv
 interactive_map/*.png
 notebooks/DFA_Analysis_MARSS.nb.html
+interactive_map/cluster_imgs/*
+5_21_14b ciri_variables_short_descriptions.pdf

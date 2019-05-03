@@ -19,11 +19,20 @@ library(RSQLite)
 con = dbConnect(SQLite(), dbname = "./MS_hackathon.db")
 
 # Query
-query = dbSendQuery(con, "SELECT * FROM GapMinderData")
+query = dbSendQuery(con, "SELECT * 
+                    FROM GapMinderData
+                    LEFT JOIN CIRI_Cluster ON GapMinderData.unctry = CIRI_Cluster.unctry AND
+                    GapMinderData.date = CIRI_Cluster.year 
+                    WHERE date > 2012")
 # Fetch query
 df = dbFetch(query, n = -1)
 # Clear query
 dbClearResult(query)
+
+
+
+
+
 
 # Read in the country shape file.
 world=readOGR(dsn= "./ne_50m_admin_0_countries/", layer="ne_50m_admin_0_countries", stringsAsFactors = F)
@@ -69,7 +78,7 @@ ui = fluidPage(
   sidebarPanel(
     checkboxGroupInput(inputId = "clusters", label = "Rights Violation Clusters",
                        choices = list(1,2,3,4,5,6,7), inline = T),
-    selectInput("year","Year", seq(range(df$date)[1], range(df$date)[2])),
+    selectInput("year","Year",min(df$date,na.rm=T), max(df$date,na.rm=T)),
     
     radioButtons("sel", "GapMinder Data", buttons), width = 3),
 
@@ -110,6 +119,10 @@ server = function(input, output){
     world@data$democracy_score = compress(world@data$democracy_score,F,na.rm=T)
     world@data$murder_per_1000 = compress(world@data$murder_per_1000,T,na.rm=T)
     
+    # Wink out unselected clusters.
+    #world@data[!(world@data$class %in% as.numeric(input$clusters)),"class"] = NA
+    world@data[!(world@data$class %in% as.numeric(input$clusters)),5:ncol(world@data)] = NA
+    #if(input$clusters == "2") browser()
     # Switch board (selector is linked to column in subset data)
     DataType <- function(x) {
       switch(x,
@@ -135,12 +148,12 @@ server = function(input, output){
       )}
     
     if(input$sel=="Population"){
-      myPal = colorBin(palette = "YlOrBr", domain = c(0,1), na.color = "#282F44",
-                       bins = c(0,.4,.6,.8,.9,1), alpha = 0.9)(DataType(input$sel))
+      myPal = colorBin(palette = "YlOrBr", domain = c(0,1), na.color = "#282F4480",
+                       bins = c(0,.4,.6,.8,.9,1), alpha = F)(DataType(input$sel))
     }
     else{
-      myPal = colorNumeric(palette = "YlOrBr", domain = c(0,1),
-                           na.color = "#282F44", alpha = 0.9)(DataType(input$sel))
+      myPal = colorNumeric(palette = "YlOrBr", domain = c(0,1), na.color = "#282F4480",
+                           alpha = F)(DataType(input$sel))
     }
     # Map
     leaflet(world) %>% addTiles()  %>% 
@@ -153,22 +166,39 @@ server = function(input, output){
           weight = 5, color = ~colorNumeric("Blues", c(0,1))(DataType(input$sel)),
           dashArray = "", fillOpacity = 0.1, bringToFront = TRUE
         ),
-        label = paste("Country: ", world@data$name,"<br/>", sep="") %>% lapply(htmltools::HTML),
+        label = paste("Country: ", world@data$name,"<br/>",
+                      "Disappearance: ", world@data$disap,"<br/>",
+                      "Extrajudicial Killing: ", world@data$kill,"<br/>",
+                      "Torture: ", world@data$tort,"<br/>",
+                      "Political Imprisonment: ", world@data$polpris,"<br/>",
+                      "Freedom of Assembly: ", world@data$assn,"<br/>",
+                      "Freedom of Foreign Movement: ", world@data$formov,"<br/>",
+                      "Freedom of Domestic Movement: ", world@data$dommov,"<br/>",
+                      "Freedom of Speech: ", world@data$speech,"<br/>",
+                      "Electoral Self Determination: ", world@data$elecsd,"<br/>",
+                      "Electoral Self Determination: ", world@data$elecsd,"<br/>",
+                      "Freedom of Religion: ", world@data$new_relfre,"<br/>",
+                      "Workers Rights: ", world@data$worker,"<br/>",
+                      "Women's Economic Rights: ", world@data$wecon,"<br/>",
+                      "Women's Political Rights: ", world@data$wopol,"<br/>",
+                      "Independence of the Judiciary: ", world@data$injud,"<br/>",
+                      sep="") %>% 
+          lapply(htmltools::HTML),
         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"),
                                     textsize = "13px", direction = "auto")
       ) %>%
     addLegend(
       pal=colorNumeric(palette="YlOrBr", domain=c(0,1), na.color="transparent", reverse = T),
-      values=~DataType(input$sel),  opacity=0.9,
+      values=~DataType(input$sel), opacity=0.9,
       title = "", position = "bottomleft", 
       labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
   })
   output$clust_img = renderImage({
       return(list(
-        src = "./Cluster_Image.png",
+        src = paste("./cluster_imgs/",input$year,".png",sep=""),
         contentType = "image/png",
-        alt = "Analysis Clusters 2011",
-        width = "80%"))
+        alt = "Analysis Clusters",
+        width = "100%"))
   }, deleteFile = F)
 }
 
