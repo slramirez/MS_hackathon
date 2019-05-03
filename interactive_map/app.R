@@ -29,11 +29,6 @@ df = dbFetch(query, n = -1)
 # Clear query
 dbClearResult(query)
 
-
-
-
-
-
 # Read in the country shape file.
 world=readOGR(dsn= "./ne_50m_admin_0_countries/", layer="ne_50m_admin_0_countries", stringsAsFactors = F)
 world@data = world@data %>% select(FORMAL_EN,UN_A3) # Select formal country name and UN code.
@@ -70,25 +65,6 @@ buttons = list("Population","Birth Rate",
                "Corruption",
                "Democracy",
                "Murder Rate")
-
-
-ui = fluidPage(
-  theme = shinytheme("flatly"),
-  fluidRow(tags$h1("Hackathon for Social Good: Insight Seattle 19A"), align = "center"),
-  sidebarPanel(
-    checkboxGroupInput(inputId = "clusters", label = "Rights Violation Clusters",
-                       choices = list(1,2,3,4,5,6,7), inline = T),
-    selectInput("year","Year",min(df$date,na.rm=T), max(df$date,na.rm=T)),
-    
-    radioButtons("sel", "GapMinder Data", buttons), width = 3),
-
-  mainPanel(tags$h4("Country GapMinder Data Filtered by Human Rights Clusters"),
-            leafletOutput("map"),
-            helpText("This map shows the GapMinder data standardized bewteen 0-1 in each year from 1980 to 2017 for countries with data. Years and locations without data are black and not included in the relative scaling."),
-            fluidRow(tags$h4("Human Rights Cluster Analysis"),
-                     tags$p("Gaussian Mixture Model Clustering of countries in 2011 by CIRI scores across 14 human rights violations. The further out toward scores of the 3 indicate a better record on a given human rights issue.")),
-            imageOutput("clust_img"))
-)
 
 server = function(input, output){
   # Create Map
@@ -200,6 +176,58 @@ server = function(input, output){
         alt = "Analysis Clusters",
         width = "100%"))
   }, deleteFile = F)
+  output$word_map_neg = renderImage({
+    return(list(
+      src=paste("./Cluster_Word_Clouds/",input$year,".0_",input$clusters[1],".0.png", sep = ""),
+      contentType = "image/png",
+      alt = "Cluster Word Cloud",
+      width = "100%"
+    ))
+  }, deleteFile = F)
+  output$word_map_pos = renderImage({
+    return(list(
+      src=paste("./Cluster_Word_Clouds/Good News Filtered/",input$year,".0_",input$clusters[1],".0.png", sep = ""),
+      contentType = "image/png",
+      alt = "Cluster Word Cloud",
+      width = "100%"
+    ))
+  }, deleteFile = F)
 }
 
+#paste("./Cluster_Word_Clouds/Good News Filtered/2013.0_1.0.png")
+
+ui = fluidPage(
+  # Theme
+  theme = shinytheme("flatly"),
+  # Title
+  fluidRow(tags$h1("Global Patterns in Human Rights"),
+           tags$h3("Seattle Data Science Insight Fellows"),
+           tags$p("Priscilla Addison, Tyler Blair, Kyle Chezik, Colin Dietrich, Stephanie Lee, Marie Salmi, Gareth Walker"), align = "center"),
+  fluidRow(tags$hr(style="border: 1px solid black")),
+  # Sidebar Selector Panel
+  sidebarPanel(
+    checkboxGroupInput(inputId = "clusters", label = "Human Rights Country Clusters",
+                       choices = list(1,2,3,4,5,6,7,8), inline = T, selected = 1),
+    
+    selectInput("year", "Year", choices = list(2013,2014,2015)),
+    
+    radioButtons("sel", "GapMinder Data", buttons, inline = T), width = 3),
+  # Map
+  mainPanel(tags$h4("Country GapMinder Data Filtered by Human Rights Clusters"),
+            leafletOutput("map"),
+            helpText("This map shows the GapMinder data standardized bewteen 0-1 in each year from 1980 to 2017 for countries with data. Smaller values indicate relatively lower values of the chosen variable. Locations either not in the chosen cluster or without known data in the given year are dark but relative values consider all GapMinder data in the chosen year across clusters.")),
+  # Word Map Image
+  fluidRow(column(3, tags$h4("Negative Cluster Word Cloud"),
+                  tags$p("This word cloud represents the dominant words in US State Department Reports indicating poor human rights and low CIRI scores in the given cluster."),
+                  imageOutput("word_map_neg"),
+           tags$h4("Positive Cluster Word Cloud"),
+                  tags$p("This word cloud represents the dominant words in US State Department Reports indicating good human rights and high CIRI scores in the given cluster."),
+                  imageOutput("word_map_pos")),
+  column(9,tags$h4("Human Rights Cluster Analysis"),
+         tags$p("Gaussian Mixture Model Clustering of countries by human rights conditions given CIRI scores in a given year. Clusters encompassing a greater area include countries with better human rights conditions."),
+         imageOutput("clust_img")))
+)
+
+
 shinyApp(ui = ui, server = server)
+

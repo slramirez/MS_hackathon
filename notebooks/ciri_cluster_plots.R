@@ -91,8 +91,8 @@ library(dbplyr)
 library(RSQLite)
 
 # Connect to Hack DB.
-con = dbConnect(SQLite(), dbname = "./MS_hackathon.db")
-dbRemoveTable(con,"CIRI_Cluster")
+con = dbConnect(SQLite(), dbname = "../data/MS_hackathon.db")
+#dbRemoveTable(con,"CIRI_Cluster")
 # Write to Hack DB.
 dbWriteTable(con,"CIRI_Cluster",wide)
 
@@ -102,7 +102,7 @@ dbWriteTable(con,"CIRI_Cluster",wide)
 # Plot Radar Graph
 cols <- c("8" = "red", "4" = "blue", "6" = "darkgreen", "10" = "orange")
 
-ciri_clusters[['2015']]$df_long %>% arrange(violation) %>% 
+ciri_clusters[['2013']]$df_long %>% arrange(violation) %>% 
 ggplot(data = ., aes(x=violation, y=score, group=class, fill=class)) +
   geom_polygon(alpha = 0.5) +
   scale_x_discrete(labels = c("Disappearances" = "Disappearances",
